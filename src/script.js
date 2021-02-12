@@ -2,6 +2,7 @@ let textInput = document.querySelector("#text-input");
 let inputForm = document.querySelector("#input-form");
 let newTask = textInput.value
 let toDoListElement = document.querySelector("#to-do-list");
+let deleteButtons = document.querySelectorAll(".delete-button")
 
 function createNewListElement(newTask) {
   let listItem = document.createElement("li");
@@ -26,6 +27,11 @@ function createNewListElement(newTask) {
   return listItem;
 }
 
+function deleteTask() {
+  let listItem = this.parentNode;
+  toDoListElement.removeChild(listItem);
+}
+
 function setNewTask(event) {
   newTask = event.target.value;
 }
@@ -39,8 +45,11 @@ function handleSubmit(event) {
     toDoListElement.appendChild(newLi);
     textInput.value = "";
     newTask = "";
+    let deleteButtons = document.querySelectorAll(".delete-button")
+    deleteButtons.forEach(item => item.addEventListener("click", deleteTask));
   }
 }
 
 textInput.addEventListener("change", setNewTask);
 inputForm.addEventListener("submit", handleSubmit);
+deleteButtons.forEach(item => item.addEventListener("click", deleteTask));
