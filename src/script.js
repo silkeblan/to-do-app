@@ -2,14 +2,18 @@ let textInput = document.querySelector("#text-input");
 let inputForm = document.querySelector("#input-form");
 let newTask = textInput.value
 let toDoListElement = document.querySelector("#to-do-list");
+
 let deleteButtons = document.querySelectorAll(".delete-button");
 let checkboxes = document.querySelectorAll(".form-check-input");
 let editButtons = document.querySelectorAll(".pencil");
+let listItems = document.querySelectorAll(".list-item");
+
+
 
 function createNewListElement(newTask) {
   let listItem = document.createElement("li");
   let checkBox = document.createElement("input");
-  let taskItem = document.createElement("label");
+  let taskItem = document.createElement("span");
   let editButton = document.createElement("i");
   let deleteButton = document.createElement("i");
 
@@ -18,6 +22,7 @@ function createNewListElement(newTask) {
   checkBox.className = "form-check-input col-1";
   taskItem.className = "list-text col-9";
   taskItem.innerText = newTask;
+  taskItem.draggable = true;
   editButton.className = "pencil col-1 fas fa-pencil-alt";
   deleteButton.className = "delete-button far fa-times-circle col-1";
 
@@ -49,7 +54,7 @@ function editTask() {
   
   if (listItem.matches(".edit")) {
     let editedTask = listItem.querySelector(".edit-window");
-    let newTask = document.createElement("label");
+    let newTask = document.createElement("span");
     newTask.className = "list-text col-9"
     newTask.innerHTML = editedTask.value;
     
@@ -61,11 +66,11 @@ function editTask() {
     listItem.classList.remove("edit")
   } else {
     let editWindow = document.createElement("input");
-    let oldTask = listItem.querySelector("label").innerHTML;
+    let oldTask = listItem.querySelector("span").innerHTML;
     editWindow.type = "text";
     editWindow.className = "edit-window col-9";
     editWindow.value = oldTask;
-    
+
     listItem.replaceChild(editWindow, task);
     
     this.classList.remove("fa-pencil-alt");
@@ -88,17 +93,46 @@ function handleSubmit(event) {
     toDoListElement.appendChild(newLi);
     textInput.value = "";
     newTask = "";
-    deleteButtons = document.querySelectorAll(".delete-button")
+    deleteButtons = document.querySelectorAll(".delete-button");
     deleteButtons.forEach(item => item.addEventListener("click", deleteTask));
     checkboxes = document.querySelectorAll(".form-check-input");
     checkboxes.forEach(item => item.addEventListener("change", checkTask));
     editButtons = document.querySelectorAll(".pencil");
     editButtons.forEach(item => item.addEventListener("click", editTask));
+    listItems = document.querySelectorAll(".list-item");
+    listItems.forEach(item => item.addEventListener("dragstart", () => {
+  item.classList.add("dragging");
+}))
+listItems.forEach(item => item.addEventListener("dragend", () => {
+  item.classList.remove("dragging");
+}))
   }
+}
+
+function getDragAfterElement(container, y) {
+  const draggableElements = [...container.querySelectorAll(".list-item:not(.dragging)")];
+  
+  return draggableElements.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+    if (offset < 0 && offset > closest.offset) {
+      return {offset: offset, element: child}
+    } else {
+      return closest
+    }
+  }, { offset: Number.NEGATIVE_INFINITY }).element
 }
 
 textInput.addEventListener("change", setNewTask);
 inputForm.addEventListener("submit", handleSubmit);
-deleteButtons.forEach(item => item.addEventListener("click", deleteTask));
-checkboxes.forEach(item => item.addEventListener("change", checkTask));
-editButtons.forEach(item => item.addEventListener("click", editTask));
+
+toDoListElement.addEventListener("dragover", e => {
+  e.preventDefault();
+  const afterElement = getDragAfterElement(toDoListElement, e.clientY);
+  const draggable = document.querySelector(".dragging");
+  if (afterElement == null) {
+    toDoListElement.appendChild(draggable);
+  } else {
+    toDoListElement.insertBefore(draggable, afterElement);
+  }
+});

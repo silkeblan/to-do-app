@@ -63,7 +63,7 @@ li:hover {
   cursor: pointer;
 }
 
-.form-control {
+#text-input {
   margin: 0 10px 0 12px;
   box-shadow: 5px 5px 5px rgba(54, 43, 43, 0.2);
 }
@@ -102,4 +102,18 @@ footer {
 }
 
 .edit-window {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+}
+
+.list-item:hover {
+  cursor: grab;
+  cursor: -moz-grab;
+}
+
+.list-item.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+  cursor: -moz-grabbing;
+  background: rgb(252, 250, 131);
 }
